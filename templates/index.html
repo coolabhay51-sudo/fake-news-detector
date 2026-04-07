@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Fake News Detector — Sandip University MCA Project</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:    #0F1C2E;
+    --navy2:   #1A2D45;
+    --navy3:   #243958;
+    --gold:    #C9A84C;
+    --gold2:   #E8C96A;
+    --cream:   #F7F3EC;
+    --white:   #FFFFFF;
+    --gray:    #8899AA;
+    --green:   #22C55E;
+    --red:     #EF4444;
+    --green-bg:#DCFCE7;
+    --red-bg:  #FEE2E2;
+  }
+
+  body {
+    background: var(--cream);
+    font-family: 'DM Sans', sans-serif;
+    color: var(--navy);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── HEADER ─────────────────────────────────── */
+  header {
+    background: var(--navy);
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: -80px; right: -80px;
+    width: 320px; height: 320px;
+    border: 60px solid rgba(201,168,76,0.08);
+    border-radius: 50%;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; left: 30%;
+    width: 180px; height: 180px;
+    border: 30px solid rgba(201,168,76,0.05);
+    border-radius: 50%;
+  }
+  .header-inner {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 3rem 2rem 2.5rem;
+    position: relative;
+    z-index: 1;
+  }
+  .badge {
+    display: inline-block;
+    background: rgba(201,168,76,0.15);
+    border: 1px solid rgba(201,168,76,0.3);
+    color: var(--gold2);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 1.2rem;
+  }
+  h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 900;
+    color: var(--white);
+    line-height: 1.15;
+    margin-bottom: 0.8rem;
+  }
+  h1 span { color: var(--gold); }
+  .tagline {
+    color: rgba(255,255,255,0.55);
+    font-size: 0.95rem;
+    font-weight: 300;
+    letter-spacing: 0.3px;
+  }
+  .gold-line {
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--gold), transparent);
+  }
+
+  /* ── MAIN ────────────────────────────────────── */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+  }
+
+  /* ── CARD ────────────────────────────────────── */
+  .card {
+    background: var(--white);
+    border-radius: 20px;
+    box-shadow: 0 4px 24px rgba(15,28,46,0.08);
+    overflow: hidden;
+    margin-bottom: 2rem;
+  }
+  .card-header {
+    background: var(--navy);
+    padding: 1rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .card-header .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+  }
+  .card-header .url-bar {
+    flex: 1;
+    background: rgba(255,255,255,0.1);
+    border-radius: 6px;
+    padding: 5px 14px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: rgba(255,255,255,0.6);
+  }
+  .card-body { padding: 2rem; }
+
+  /* ── TEXTAREA ─────────────────────────────────── */
+  .input-label {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--navy2);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .input-label::before {
+    content: '';
+    display: inline-block;
+    width: 3px; height: 14px;
+    background: var(--gold);
+    border-radius: 2px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 140px;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--navy);
+    background: #FAFBFC;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    line-height: 1.6;
+  }
+  textarea:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(201,168,76,0.12);
+    background: var(--white);
+  }
+  textarea::placeholder { color: #B0BEC5; }
+
+  .char-count {
+    text-align: right;
+    font-size: 11px;
+    color: var(--gray);
+    margin-top: 5px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* ── EXAMPLES ─────────────────────────────────── */
+  .examples-label {
+    font-size: 12px;
+    color: var(--gray);
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .example-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+  .chip {
+    background: #F0F4F8;
+    border: 1px solid #E2E8F0;
+    border-radius: 20px;
+    padding: 6px 14px;
+    font-size: 12px;
+    color: var(--navy2);
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .chip:hover {
+    background: var(--navy);
+    color: var(--gold);
+    border-color: var(--navy);
+  }
+  .chip.fake-chip { border-left: 3px solid var(--red); }
+  .chip.real-chip { border-left: 3px solid var(--green); }
+
+  /* ── BUTTON ───────────────────────────────────── */
+  .btn-check {
+    width: 100%;
+    padding: 15px 24px;
+    background: var(--navy);
+    color: var(--gold);
+    border: none;
+    border-radius: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    letter-spacing: 0.3px;
+    margin-top: 1.2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-check::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(201,168,76,0.15), transparent);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .btn-check:hover { background: var(--navy2); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(15,28,46,0.25); }
+  .btn-check:hover::before { opacity: 1; }
+  .btn-check:active { transform: translateY(0); }
+  .btn-check:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+  .btn-icon { font-size: 20px; transition: transform 0.3s; }
+  .btn-check:not(:disabled):hover .btn-icon { transform: rotate(15deg); }
+
+  /* ── LOADING ──────────────────────────────────── */
+  .loading-bar {
+    height: 3px;
+    background: #E2E8F0;
+    border-radius: 3px;
+    overflow: hidden;
+    margin: 1rem 0;
+    display: none;
+  }
+  .loading-bar.active { display: block; }
+  .loading-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--navy), var(--gold), var(--navy));
+    background-size: 200% 100%;
+    animation: shimmer 1.2s infinite;
+    border-radius: 3px;
+    width: 100%;
+  }
+  @keyframes shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* ── RESULT ───────────────────────────────────── */
+  .result-section {
+    display: none;
+    animation: slideUp 0.5s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  .result-section.visible { display: block; }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-box {
+    border-radius: 16px;
+    padding: 1.8rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin-bottom: 1.2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-box::before {
+    content: '';
+    position: absolute;
+    top: -30px; right: -30px;
+    width: 120px; height: 120px;
+    border-radius: 50%;
+    opacity: 0.08;
+  }
+  .result-box.real  { background: var(--green-bg); border: 2px solid var(--green); }
+  .result-box.fake  { background: var(--red-bg);   border: 2px solid var(--red); }
+  .result-box.real::before  { background: var(--green); }
+  .result-box.fake::before  { background: var(--red); }
+
+  .result-icon {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+  }
+  .result-box.real .result-icon { background: var(--green); }
+  .result-box.fake .result-icon { background: var(--red); }
+
+  .result-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+  .result-box.real .result-label { color: #15803D; }
+  .result-box.fake .result-label { color: #B91C1C; }
+
+  .result-sub {
+    font-size: 13px;
+    color: #6B7280;
+    margin-top: 4px;
+  }
+
+  /* ── CONFIDENCE BAR ───────────────────────────── */
+  .conf-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+  .conf-label { font-size: 13px; color: var(--gray); font-weight: 500; }
+  .conf-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--navy);
+  }
+  .conf-track {
+    height: 8px;
+    background: #E2E8F0;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 1.2rem;
+  }
+  .conf-fill {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 1s cubic-bezier(0.22,1,0.36,1);
+    width: 0%;
+  }
+  .conf-fill.real { background: linear-gradient(90deg, #22C55E, #16A34A); }
+  .conf-fill.fake { background: linear-gradient(90deg, #F87171, #EF4444); }
+
+  /* ── METRICS GRID ─────────────────────────────── */
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin-top: 0.5rem;
+  }
+  .metric-card {
+    background: var(--cream);
+    border-radius: 12px;
+    padding: 12px;
+    text-align: center;
+    border: 1px solid rgba(15,28,46,0.06);
+  }
+  .metric-val {
+    font-family: 'DM Mono', monospace;
+    font-size: 18px;
+    font-weight: 500;
+    color: var(--navy);
+    display: block;
+  }
+  .metric-name {
+    font-size: 10px;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 3px;
+  }
+
+  /* ── DEMO BADGE ───────────────────────────────── */
+  .demo-note {
+    background: rgba(201,168,76,0.1);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    color: #92651A;
+    margin-top: 1rem;
+    display: none;
+  }
+  .demo-note.visible { display: block; }
+
+  /* ── HOW IT WORKS ─────────────────────────────── */
+  .how-section {
+    background: var(--white);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 4px 24px rgba(15,28,46,0.06);
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--navy);
+    margin-bottom: 1.5rem;
+  }
+  .steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1rem;
+  }
+  .step {
+    text-align: center;
+    padding: 1.2rem 0.8rem;
+    border-radius: 12px;
+    background: var(--cream);
+    position: relative;
+  }
+  .step-num {
+    width: 36px; height: 36px;
+    background: var(--navy);
+    color: var(--gold);
+    border-radius: 50%;
+    font-size: 15px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 0.8rem;
+    font-family: 'DM Mono', monospace;
+  }
+  .step-icon { font-size: 28px; margin-bottom: 0.5rem; }
+  .step-title { font-size: 13px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+  .step-desc  { font-size: 11px; color: var(--gray); line-height: 1.5; }
+
+  /* ── FOOTER ───────────────────────────────────── */
+  footer {
+    background: var(--navy);
+    color: rgba(255,255,255,0.45);
+    text-align: center;
+    padding: 1.5rem;
+    font-size: 12px;
+    line-height: 1.8;
+  }
+  footer strong { color: var(--gold); font-weight: 500; }
+
+  /* ── ERROR ────────────────────────────────────── */
+  .error-msg {
+    background: #FEF2F2;
+    border: 1px solid #FECACA;
+    border-radius: 10px;
+    padding: 10px 16px;
+    font-size: 13px;
+    color: #B91C1C;
+    margin-top: 0.8rem;
+    display: none;
+  }
+  .error-msg.visible { display: block; }
+
+  /* ── CLEAR BTN ────────────────────────────────── */
+  .btn-clear {
+    background: none;
+    border: 1.5px solid #E2E8F0;
+    border-radius: 8px;
+    padding: 8px 16px;
+    font-size: 13px;
+    color: var(--gray);
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 0.8rem;
+    font-family: 'DM Sans', sans-serif;
+  }
+  .btn-clear:hover { border-color: var(--navy); color: var(--navy); }
+
+  @media (max-width: 600px) {
+    .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+    .steps { grid-template-columns: repeat(2, 1fr); }
+    h1 { font-size: 1.8rem; }
+    .result-label { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="badge">MCA Final Year Project · Sandip University</div>
+    <h1>Detect <span>Fake News</span><br>with AI</h1>
+    <p class="tagline">Powered by Machine Learning Ensemble Methods · 94.7% Accuracy</p>
+  </div>
+  <div class="gold-line"></div>
+</header>
+
+<main>
+
+  <!-- ── INPUT CARD ── -->
+  <div class="card">
+    <div class="card-header">
+      <div class="dot" style="background:#FF5F57"></div>
+      <div class="dot" style="background:#FEBC2E"></div>
+      <div class="dot" style="background:#28C840"></div>
+      <div class="url-bar">fake-news-detector.app · powered by Stacking Ensemble ML</div>
+    </div>
+    <div class="card-body">
+
+      <div class="input-label">News Article Text</div>
+      <textarea id="newsInput" placeholder="Yahan news article ka text paste karein ya type karein...&#10;&#10;Example: 'Government announces new education policy for all states...'"></textarea>
+      <div class="char-count"><span id="charCount">0</span> words</div>
+
+      <div style="margin: 1.2rem 0 0.5rem;">
+        <div class="examples-label">Quick examples try karein:</div>
+        <div class="example-chips">
+          <div class="chip real-chip" onclick="loadExample('real1')">✅ Real: Health policy</div>
+          <div class="chip real-chip" onclick="loadExample('real2')">✅ Real: Economy news</div>
+          <div class="chip fake-chip" onclick="loadExample('fake1')">❌ Fake: 5G conspiracy</div>
+          <div class="chip fake-chip" onclick="loadExample('fake2')">❌ Fake: Miracle cure</div>
+        </div>
+      </div>
+
+      <button class="btn-check" id="checkBtn" onclick="checkNews()">
+        <span class="btn-icon">🔍</span>
+        Check This News
+      </button>
+
+      <div class="loading-bar" id="loadingBar">
+        <div class="loading-bar-fill"></div>
+      </div>
+
+      <div class="error-msg" id="errorMsg"></div>
+
+      <!-- ── RESULT ── -->
+      <div class="result-section" id="resultSection">
+        <div style="height: 1.5rem;"></div>
+
+        <div class="result-box" id="resultBox">
+          <div class="result-icon" id="resultIcon"></div>
+          <div>
+            <div class="result-label" id="resultLabel"></div>
+            <div class="result-sub" id="resultSub"></div>
+          </div>
+        </div>
+
+        <div class="conf-row">
+          <span class="conf-label">Model Confidence</span>
+          <span class="conf-value" id="confValue">—</span>
+        </div>
+        <div class="conf-track">
+          <div class="conf-fill" id="confFill"></div>
+        </div>
+
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <span class="metric-val" id="mPrecision">—</span>
+            <span class="metric-name">Precision</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-val" id="mRecall">—</span>
+            <span class="metric-name">Recall</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-val" id="mF1">—</span>
+            <span class="metric-name">F1-Score</span>
+          </div>
+          <div class="metric-card">
+            <span class="metric-val" id="mAccuracy">—</span>
+            <span class="metric-name">Accuracy</span>
+          </div>
+        </div>
+
+        <div class="demo-note" id="demoNote">
+          ⚠️ Demo Mode: Model not trained yet. Run <code>python train_model.py</code> for real predictions.
+        </div>
+
+        <button class="btn-clear" onclick="clearAll()">✕ Clear & Try Another</button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── HOW IT WORKS ── -->
+  <div class="how-section">
+    <div class="section-title">Kaise Kaam Karta Hai?</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-icon">📋</div>
+        <div class="step-title">Text Copy Karo</div>
+        <div class="step-desc">WhatsApp/Facebook se koi bhi news text copy karo</div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-icon">📝</div>
+        <div class="step-title">Paste Karo</div>
+        <div class="step-desc">Upar diye text box mein paste karo</div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-icon">🤖</div>
+        <div class="step-title">AI Analysis</div>
+        <div class="step-desc">ML model TF-IDF + Stacking se analyze karta hai</div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-icon">✅</div>
+        <div class="step-title">Result</div>
+        <div class="step-desc">FAKE ya REAL result confidence ke saath milta hai</div>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <strong>Fake News Detection Using Machine Learning Ensemble Methods</strong><br>
+  Prashant Kumar Prabhat · PRN: 240205221083 · MCA 2024–2026<br>
+  Guide: Prof. Ratneshwar Kumar Singh · Sandip University, Madhubani, Bihar
+</footer>
+
+<script>
+  const examples = {
+    real1: "The government has announced a new healthcare policy that will provide free medical treatment to all citizens below the poverty line. The Minister of Health confirmed that the scheme will be implemented across all districts by next year. Independent health experts have praised this initiative as a significant step toward universal healthcare coverage.",
+    real2: "The Reserve Bank has kept the benchmark interest rate unchanged at 6.5 percent in its latest monetary policy committee meeting. The decision was taken unanimously by all six members of the committee. Economists say this move will help maintain price stability while supporting economic growth in the current financial year.",
+    fake1: "BREAKING: Scientists have confirmed that 5G towers are secretly spreading COVID-19 virus through electromagnetic waves. Government documents leaked by whistleblowers reveal that mobile companies are working with pharmaceutical giants to infect the population. Doctors are being silenced and paid to hide the truth from the public. Share this before it gets deleted!",
+    fake2: "DOCTORS HATE HIM: Local man discovers ancient Himalayan root that cures cancer, diabetes, and heart disease in just 7 days. Big Pharma companies are trying to ban this miracle cure. Thousands have already been healed but mainstream media refuses to report it. Click share to spread the truth before this video is removed forever!"
+  };
+
+  function loadExample(key) {
+    document.getElementById('newsInput').value = examples[key];
+    updateCount();
+    clearResult();
+  }
+
+  function updateCount() {
+    const text = document.getElementById('newsInput').value.trim();
+    const words = text ? text.split(/\s+/).length : 0;
+    document.getElementById('charCount').textContent = words;
+  }
+
+  document.getElementById('newsInput').addEventListener('input', () => {
+    updateCount();
+    clearResult();
+  });
+
+  function clearResult() {
+    document.getElementById('resultSection').classList.remove('visible');
+    document.getElementById('errorMsg').classList.remove('visible');
+  }
+
+  function clearAll() {
+    document.getElementById('newsInput').value = '';
+    updateCount();
+    clearResult();
+  }
+
+  async function checkNews() {
+    const text = document.getElementById('newsInput').value.trim();
+    const btn  = document.getElementById('checkBtn');
+    const load = document.getElementById('loadingBar');
+    const err  = document.getElementById('errorMsg');
+
+    clearResult();
+    err.classList.remove('visible');
+
+    if (!text) {
+      err.textContent = '⚠️ Please enter some news text first!';
+      err.classList.add('visible');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="btn-icon">⏳</span> Analyzing...';
+    load.classList.add('active');
+
+    try {
+      const res  = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        err.textContent = '⚠️ ' + (data.error || 'Something went wrong.');
+        err.classList.add('visible');
+        return;
+      }
+
+      showResult(data);
+    } catch (e) {
+      err.textContent = '⚠️ Server se connect nahi ho pa raha. Check karein ki Flask app chal raha hai.';
+      err.classList.add('visible');
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = '<span class="btn-icon">🔍</span> Check This News';
+      load.classList.remove('active');
+    }
+  }
+
+  function showResult(data) {
+    const isReal = data.prediction === 'REAL';
+    const box    = document.getElementById('resultBox');
+    const icon   = document.getElementById('resultIcon');
+    const label  = document.getElementById('resultLabel');
+    const sub    = document.getElementById('resultSub');
+    const fill   = document.getElementById('confFill');
+    const confV  = document.getElementById('confValue');
+    const demo   = document.getElementById('demoNote');
+
+    box.className   = 'result-box ' + (isReal ? 'real' : 'fake');
+    icon.textContent = isReal ? '✓' : '✗';
+    label.textContent = isReal ? 'REAL NEWS' : 'FAKE NEWS';
+    sub.textContent   = isReal
+      ? 'This news appears to be credible and authentic.'
+      : 'Warning! This news shows signs of misinformation.';
+
+    confV.textContent = data.confidence + '%';
+    fill.className    = 'conf-fill ' + (isReal ? 'real' : 'fake');
+
+    setTimeout(() => { fill.style.width = data.confidence + '%'; }, 100);
+
+    document.getElementById('mPrecision').textContent = data.precision + '%';
+    document.getElementById('mRecall').textContent    = data.recall + '%';
+    document.getElementById('mF1').textContent        = data.f1 + '%';
+    document.getElementById('mAccuracy').textContent  = data.accuracy + '%';
+
+    demo.className = 'demo-note' + (data.demo_mode ? ' visible' : '');
+
+    document.getElementById('resultSection').classList.add('visible');
+    document.getElementById('resultSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+</script>
+
+</body>
+</html>
